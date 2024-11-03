@@ -1,0 +1,1 @@
+DOMAIN = "immich_api"

@@ -1,0 +1,11 @@
+{
+  "domain": "immich_api",
+  "name": "IMMICH API",
+  "version": "1.0",
+  "config_flow": true,
+  "documentation": "https://github.com/leon-v/HASS-IMMICH-API",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": ["@leon-v"],
+  "iot_class": "local_polling"
+}
