@@ -13,9 +13,9 @@ from .ImmichApi import ImmichApi
 
 
 class Hub:
-    """Dummy hub for Hello World example."""
+    """Device continer for all sensors."""
 
-    manufacturer = "Demonstration Corp"
+    manufacturer = "IMMICH by the IMMICH core team. This component by Leon-V"
     instanceIndex = 0
 
     def __init__(self, hass: HomeAssistant, host: str, api_key: str) -> None:

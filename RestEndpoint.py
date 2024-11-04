@@ -10,13 +10,15 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Coor
 
 # Local
 from .Hub import Hub
-from .RestValue import RestValue
 
 # Constants
 _LOGGER = logging.getLogger(__name__)
 
 class RestEndpoint(CoordinatorEntity, SensorEntity):
     def __init__(self, hub: Hub, endpoint: str, name: str) -> None:
+
+        from .RestValue import RestValue
+
         """Init sensor."""
         self.hub: Hub = hub
         self.endpoint: str = endpoint

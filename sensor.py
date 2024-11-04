@@ -38,6 +38,8 @@ async def async_setup_entry(
 
     await jobsEndpoint.coordinator.async_config_entry_first_refresh()
 
+    # TODO jobsEndpoint.addSensor(...), and async_add_entities(jobsEndpoint.getEntities())
+
     #{"thumbnailGeneration":{"jobCounts":{"active":0,"completed":0,"failed":0,"delayed":0,"waiting":0,"paused":0},"queueStatus":{"isActive":false,"isPaused":false}}
     newDevices.append(QueueSizeNumberEntity(jobsEndpoint, '- Thumbnail Generation Queue', '- Active', ['thumbnailGeneration', 'jobCounts' ,'active']))
     newDevices.append(QueueSizeNumberEntity(jobsEndpoint, '- Thumbnail Generation Queue', '- Completed', ['thumbnailGeneration', 'jobCounts' ,'completed']))

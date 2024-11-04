@@ -10,13 +10,12 @@ from .Hub import Hub
 # eg <cover.py> and <sensor.py>
 PLATFORMS = [Platform.SENSOR]
 
-type HubConfigEntry = ConfigEntry[Hub.Hub]
-
+type HubConfigEntry = ConfigEntry[Hub]
 
 async def async_setup_entry(hass: HomeAssistant, entry: HubConfigEntry) -> bool:
     """Set up from a config entry."""
 
-    entry.runtime_data = Hub.Hub(
+    entry.runtime_data = Hub(
         hass,
         entry.data["host"],
         entry.data["api_key"]
