@@ -11,6 +11,9 @@ from . import HubConfigEntry
 from .Constants import DOMAIN
 from .Hub import Hub
 from .RestEndpoint import RestEndpoint
+from .RestRequest import RestRequest
+from .RestCommand import RestCommand
+from .QueuePauseResumeSwitch import QueuePauseResumeSwitch, RestCommand
 from .QueueSizeNumberEntity import QueueSizeNumberEntity
 from .QueueStatusBoolEntity import QueueStatusBoolEntity
 
@@ -31,25 +34,72 @@ async def async_setup_entry(
     """Add  sensors for passed config_entry in HA."""
     hub: Hub = config_entry.runtime_data
 
+    await hub.jobsSensorEndpoint.coordinator.async_config_entry_first_refresh()
+
     newDevices = []
 
+    # TODO jobsSensorEndpoint.addSensor(...), and async_add_entities(jobsSensorEndpoint.getEntities())
 
-    jobsEndpoint = RestEndpoint(hub, 'jobs', 'Jobs')
+    newDevices.append(hub.jobsSensorEndpoint)
 
-    await jobsEndpoint.coordinator.async_config_entry_first_refresh()
+    newDevices.append(QueueSizeNumberEntity(
+        hub.jobsSensorEndpoint,
+        ['thumbnailGeneration', 'jobCounts' ,'active'],
+        '- Thumbnail Generation Queue',
+        '- Active'
+    ))
 
-    # TODO jobsEndpoint.addSensor(...), and async_add_entities(jobsEndpoint.getEntities())
+    newDevices.append(QueueSizeNumberEntity(
+        hub.jobsSensorEndpoint,
+        ['thumbnailGeneration', 'jobCounts' ,'failed'],
+        '- Thumbnail Generation Queue',
+        '- Failed'
+    ))
 
-    #{"thumbnailGeneration":{"jobCounts":{"active":0,"completed":0,"failed":0,"delayed":0,"waiting":0,"paused":0},"queueStatus":{"isActive":false,"isPaused":false}}
-    newDevices.append(QueueSizeNumberEntity(jobsEndpoint, '- Thumbnail Generation Queue', '- Active', ['thumbnailGeneration', 'jobCounts' ,'active']))
-    newDevices.append(QueueSizeNumberEntity(jobsEndpoint, '- Thumbnail Generation Queue', '- Completed', ['thumbnailGeneration', 'jobCounts' ,'completed']))
-    newDevices.append(QueueSizeNumberEntity(jobsEndpoint, '- Thumbnail Generation Queue', '- Failed', ['thumbnailGeneration', 'jobCounts' ,'failed']))
-    # newDevices.append(QueueSizeNumberEntity(jobsEndpoint, '- Thumbnail Generation Queue', '- Delayed', ['thumbnailGeneration', 'jobCounts' ,'delayed']))
-    # newDevices.append(QueueSizeNumberEntity(jobsEndpoint, '- Thumbnail Generation Queue', '- Waiting', ['thumbnailGeneration', 'jobCounts' ,'waiting']))
-    newDevices.append(QueueSizeNumberEntity(jobsEndpoint, '- Thumbnail Generation Queue', 'Paused', ['thumbnailGeneration', 'jobCounts' ,'paused']))
-    newDevices.append(QueueStatusBoolEntity(jobsEndpoint, '- Thumbnail Generation Status', '- Active', ['thumbnailGeneration', 'queueStatus', 'isActive']))
-    newDevices.append(QueueStatusBoolEntity(jobsEndpoint, '- Thumbnail Generation Status', '- Paused', ['thumbnailGeneration', 'queueStatus', 'isPaused']))
+    newDevices.append(QueueSizeNumberEntity(
+        hub.jobsSensorEndpoint,
+        ['thumbnailGeneration', 'jobCounts' ,'waiting'],
+        '- Thumbnail Generation Queue',
+        '- Waiting'
+    ))
 
-    newDevices.append(jobsEndpoint)
+    newDevices.append(QueueSizeNumberEntity(
+        hub.jobsSensorEndpoint,
+        ['thumbnailGeneration', 'jobCounts' ,'paused'],
+        '- Thumbnail Generation Queue',
+        '- Paused'
+    ))
+
+    newDevices.append(QueueStatusBoolEntity(
+        hub.jobsSensorEndpoint,
+        ['thumbnailGeneration', 'queueStatus', 'isActive'],
+        '- Thumbnail Generation Status',
+        '- Active'
+    ))
+
+    newDevices.append(QueueStatusBoolEntity(
+        hub.jobsSensorEndpoint,
+        ['thumbnailGeneration', 'queueStatus', 'isPaused'],
+        '- Thumbnail Generation Status',
+        '- Paused Sensor'
+    ))
+
+    # request = RestRequest(
+    #     hub = hub,
+    #     method = "PUT",
+    #     uriPath = "/api/jobs/thumbnailGeneration"
+    # )
+
+    # newDevices.append(QueuePauseResumeSwitch(
+    #     hub.jobsSensorEndpoint,
+    #     ['thumbnailGeneration', 'queueStatus', 'isPaused'],
+    #     '- Thumbnail Generation Status',
+    #     '- Paused Switch',
+    #     onCommand = RestCommand(request, {"command": "resume", "force": False}),
+    #     offCommand = RestCommand(request, {"command": "pause", "force": False}),
+    #     responsePath = ['queueStatus', 'isPaused'],
+    # ))
+
+
 
     async_add_entities(newDevices)

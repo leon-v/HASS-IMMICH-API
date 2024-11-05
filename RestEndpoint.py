@@ -14,6 +14,8 @@ from .Hub import Hub
 # Constants
 _LOGGER = logging.getLogger(__name__)
 
+# Need RestEndpoint + RestEndpointSensor
+
 class RestEndpoint(CoordinatorEntity, SensorEntity):
     def __init__(self, hub: Hub, endpoint: str, name: str) -> None:
 
@@ -26,25 +28,33 @@ class RestEndpoint(CoordinatorEntity, SensorEntity):
         self.sensors: List[RestValue] = []
 
         self._attr_name: str = f"{hub._name} {self.name}"
+        self._attr_extra_state_attributes = {}
 
         self.coordinator: DataUpdateCoordinator = DataUpdateCoordinator(
             self.hub._hass,
             _LOGGER,
-            name = endpoint,
-            update_method=self.coordinatorUpdateCallback,
+            name = f"{name} Coordinator",
+            update_method=self.coordinatorUpdate,
             update_interval=timedelta(seconds=5),
         )
-        super().__init__(self.coordinator)
-        self._attr_extra_state_attributes = {}
 
-    async def coordinatorUpdateCallback(self):
+        super().__init__(self.coordinator)
+
+        self.coordinator.async_add_listener(self.coordinatorUpdated)
+
+
+    async def coordinatorUpdate(self):
         """Fetch data from API endpoint."""
         apiResponse = await self.hub.api.call('GET', f"/api/{self.endpoint}")
-        for sensor in self.sensors:
-            sensor.endpointUpdated(apiResponse)
-            sensor.async_write_ha_state()
 
         return apiResponse
+
+    # Can get rid of this if the sensors each add listeners directly in the coordinator
+    async def coordinatorUpdated(self):
+        apiResponse = self.coordinator.data
+        for sensor in self.sensors:
+            sensor.endpointUpdated(apiResponse)
+
 
     def registerSensor(self, entity):
         self.sensors.append(entity)

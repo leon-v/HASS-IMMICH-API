@@ -33,6 +33,10 @@ class Hub:
         self._id = self._name.lower()
         self.online = True
 
+        from .RestEndpoint import RestEndpoint
+        self.jobsSensorEndpoint: RestEndpoint = RestEndpoint(self, 'jobs', 'Jobs')
+
+
     @property
     def hub_id(self) -> str:
         """ID for dummy hub."""

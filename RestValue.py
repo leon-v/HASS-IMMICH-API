@@ -4,24 +4,17 @@ from homeassistant.components.sensor import SensorEntity
 
 from .RestEndpoint import RestEndpoint
 
-class RestValue(SensorEntity):
+class RestValue():
     def __init__(
-            self,
-            endpoint: RestEndpoint,
-            groupName: str,
-            sensorName: str,
-            path: List[str]
+        self,
+        endpoint: RestEndpoint,
+        path: List[str]
     ) -> None:
-        """Initialize the queue state boolean entity."""
         self.endpoint: RestEndpoint = endpoint
-        self.groupName: str = groupName
-        self.sensorName: str = sensorName
         self.path: List[str] = path
-        self._attr_name: str = f"{endpoint._attr_name} {groupName} {sensorName}"
-
         self.endpoint.registerSensor(self)
 
-    def endpointUpdated(self, apiResponse):
+    async def endpointUpdated(self, apiResponse):
         """Must be extended and call getEndpointValue."""
 
     def getEndpointValue(self, apiResponse):
@@ -37,3 +30,16 @@ class RestValue(SensorEntity):
         self._attr_available = True
         return workingValue
 
+class RestValueSensor(RestValue, SensorEntity):
+    def __init__(
+            self,
+            endpoint: RestEndpoint,
+            path: List[str],
+            groupName: str,
+            sensorName: str
+    ) -> None:
+        """Initialize the queue state boolean entity."""
+        self.groupName: str = groupName
+        self.sensorName: str = sensorName
+        self._attr_name: str = f"{endpoint._attr_name} {groupName} {sensorName}"
+        super().__init__(endpoint, path)

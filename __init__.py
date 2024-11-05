@@ -8,7 +8,7 @@ from .Hub import Hub
 
 # List of platforms to support. There should be a matching .py file for each,
 # eg <cover.py> and <sensor.py>
-PLATFORMS = [Platform.SENSOR]
+PLATFORMS = [Platform.SENSOR, Platform.SWITCH]
 
 type HubConfigEntry = ConfigEntry[Hub]
 
