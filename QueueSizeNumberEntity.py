@@ -22,6 +22,6 @@ class QueueSizeNumberEntity(NumberEntity, RestValueSensor):
         )
         self._attr_icon: str = "mdi:counter"
 
-    async def endpointUpdated(self, apiResponse):
+    def endpointUpdated(self, apiResponse):
         self._attr_native_value = self.getEndpointValue(apiResponse)
         self.async_write_ha_state()

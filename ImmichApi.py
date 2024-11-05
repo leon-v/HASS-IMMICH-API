@@ -12,7 +12,7 @@ class ImmichApi:
 
     async def call(self, method: str, endpoint: str, **kwargs):
         async with ClientSession() as session:
-            _LOGGER.debug(f"Request:\nMethod: {method} URL: {self.host}{endpoint}\nkwargs: {kwargs}")
+            _LOGGER.debug(f"Request: Method: {method} URL: {self.host}{endpoint} kwargs: {kwargs}")
             async with session.request(
                 method=method,
                 url=f"{self.host}{endpoint}",

@@ -1,8 +1,12 @@
+import logging
 from typing import List
 
 from homeassistant.components.sensor import SensorEntity
 
 from .RestEndpoint import RestEndpoint
+
+# Constants
+_LOGGER = logging.getLogger(__name__)
 
 class RestValue():
     def __init__(
@@ -14,7 +18,8 @@ class RestValue():
         self.path: List[str] = path
         self.endpoint.registerSensor(self)
 
-    async def endpointUpdated(self, apiResponse):
+    def endpointUpdated(self, apiResponse):
+        _LOGGER.error(f"endpointUpdated must be implimented to get updates")
         """Must be extended and call getEndpointValue."""
 
     def getEndpointValue(self, apiResponse):

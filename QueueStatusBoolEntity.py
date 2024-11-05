@@ -28,7 +28,7 @@ class QueueStatusBoolEntity(BinarySensorEntity, RestValueSensor):
         self._attr_is_on: bool = False
         self._attr_icon: str = "mdi:loading"
 
-    async def endpointUpdated(self, apiResponse):
+    def endpointUpdated(self, apiResponse):
         self._attr_is_on = self.getEndpointValue(apiResponse)
         self._attr_icon = self.onIcon if self._attr_is_on else self.offIcon
         self.async_write_ha_state()

@@ -49,8 +49,8 @@ async def async_setup_entry(
         ['thumbnailGeneration', 'queueStatus', 'isPaused'],
         '- Thumbnail Generation Status',
         '- Paused Switch New',
-        onCommand = RestCommand(request, {"command": "resume", "force": False}),
-        offCommand = RestCommand(request, {"command": "pause", "force": False}),
+        onCommand = RestCommand(request, {"command": "pause", "force": False}),
+        offCommand = RestCommand(request, {"command": "resume", "force": False}),
         responsePath = ['queueStatus', 'isPaused'],
     ))
 

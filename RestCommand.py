@@ -20,7 +20,6 @@ class RestCommand:
             json = self.data
         )
 
-
         if self.callback:
             _LOGGER.debug(f"Run Callback: {apiResponse}")
-            self.callback(apiResponse)
+            await self.callback(apiResponse)
