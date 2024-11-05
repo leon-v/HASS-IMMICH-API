@@ -75,7 +75,7 @@ class QueuePauseResumeSwitch(SwitchEntity):
 
 
     def getApiResponseValue(self, path: List[str], apiValue):
-        for key in self.responsePath:
+        for key in path:
             if key not in apiValue:
                 return None
             apiValue = apiValue[key]

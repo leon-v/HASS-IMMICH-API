@@ -77,29 +77,4 @@ async def async_setup_entry(
         '- Active'
     ))
 
-    newDevices.append(QueueStatusBoolEntity(
-        hub.jobsSensorEndpoint,
-        ['thumbnailGeneration', 'queueStatus', 'isPaused'],
-        '- Thumbnail Generation Status',
-        '- Paused Sensor'
-    ))
-
-    # request = RestRequest(
-    #     hub = hub,
-    #     method = "PUT",
-    #     uriPath = "/api/jobs/thumbnailGeneration"
-    # )
-
-    # newDevices.append(QueuePauseResumeSwitch(
-    #     hub.jobsSensorEndpoint,
-    #     ['thumbnailGeneration', 'queueStatus', 'isPaused'],
-    #     '- Thumbnail Generation Status',
-    #     '- Paused Switch',
-    #     onCommand = RestCommand(request, {"command": "resume", "force": False}),
-    #     offCommand = RestCommand(request, {"command": "pause", "force": False}),
-    #     responsePath = ['queueStatus', 'isPaused'],
-    # ))
-
-
-
     async_add_entities(newDevices)
