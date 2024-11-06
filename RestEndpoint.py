@@ -7,6 +7,7 @@ import logging
 # HASS
 from homeassistant.core import callback
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
 
 # Local
@@ -31,6 +32,8 @@ class RestEndpoint(CoordinatorEntity, SensorEntity):
         self._attr_name: str = f"{hub._name} {self.name}"
         self._attr_extra_state_attributes = {}
 
+        _LOGGER.debug(f"hass on init: {self.hub._hass}")
+
         self.coordinator: DataUpdateCoordinator = DataUpdateCoordinator(
             self.hub._hass,
             _LOGGER,
@@ -41,6 +44,9 @@ class RestEndpoint(CoordinatorEntity, SensorEntity):
         self.listenerRemove = None
 
         super().__init__(self.coordinator)
+
+    def getEntities(self) -> List[Entity]:
+        return []
 
     async def async_added_to_hass(self) -> None:
         _LOGGER.debug(f"async_added_to_hass: added callback coordinatorUpdated")

@@ -1,11 +1,11 @@
 from typing import List
-import logging
 
 from homeassistant.components.switch import SwitchEntity
 
 from .RestEndpoint import RestEndpoint
 from .RestCommand import RestCommand
 
+import logging
 _LOGGER = logging.getLogger(__name__)
 
 class QueuePauseResumeSwitch(SwitchEntity):

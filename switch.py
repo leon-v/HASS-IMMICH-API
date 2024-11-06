@@ -18,17 +18,4 @@ async def async_setup_entry(
     """Add  sensors for passed config_entry in HA."""
     hub: Hub = config_entry.runtime_data
 
-    await hub.jobsSensorEndpoint.coordinator.async_config_entry_first_refresh()
-
-    thumbnailGenerationCommandRequest = RestRequest( hub = hub, method = "PUT", uriPath = "/api/jobs/thumbnailGeneration")
-    hub.switches.append(QueuePauseResumeSwitch(
-        hub.jobsSensorEndpoint,
-        ['thumbnailGeneration', 'queueStatus', 'isPaused'],
-        '- Thumbnails',
-        '- Paused',
-        onCommand = RestCommand(thumbnailGenerationCommandRequest, {"command": "pause", "force": False}),
-        offCommand = RestCommand(thumbnailGenerationCommandRequest, {"command": "resume", "force": False}),
-        responsePath = ['queueStatus', 'isPaused'],
-    ))
-
-    async_add_entities(hub.switches)
+    async_add_entities(hub.getSwitches())

@@ -28,7 +28,7 @@ class QueueStatusBoolEntity(BinarySensorEntity, RestValue):
         self._attr_is_on: bool = False
         self._attr_icon: str = "mdi:loading"
 
-        self.endpoint.registerSensor(self)
+        # self.endpoint.registerSensor(self)
 
     @property
     def is_on(self) -> bool:
