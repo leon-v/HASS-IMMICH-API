@@ -33,9 +33,11 @@ class Hub:
         self._id = self._name.lower()
         self.online = True
 
+        self.switches = []
+        self.sensors = []
+
         from .RestEndpoint import RestEndpoint
         self.jobsSensorEndpoint: RestEndpoint = RestEndpoint(self, 'jobs', 'Jobs')
-
 
     @property
     def hub_id(self) -> str:

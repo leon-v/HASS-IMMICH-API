@@ -2,29 +2,12 @@
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-# from homeassistant.components.sensor import SensorEntity
-# from homeassistant.components.number import NumberEntity
-# from homeassistant.components.binary_sensor import BinarySensorEntity
-# from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
 
 from . import HubConfigEntry
-from .Constants import DOMAIN
 from .Hub import Hub
-from .RestEndpoint import RestEndpoint
-from .RestRequest import RestRequest
-from .RestCommand import RestCommand
-from .QueuePauseResumeSwitch import QueuePauseResumeSwitch, RestCommand
 from .QueueSizeNumberEntity import QueueSizeNumberEntity
 from .QueueStatusBoolEntity import QueueStatusBoolEntity
 
-# from datetime import timedelta
-# from typing import List
-
-import logging
-
-_LOGGER = logging.getLogger(__name__)
-
-from .RestValue import RestValue
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -36,45 +19,39 @@ async def async_setup_entry(
 
     await hub.jobsSensorEndpoint.coordinator.async_config_entry_first_refresh()
 
-    newDevices = []
-
-    # TODO jobsSensorEndpoint.addSensor(...), and async_add_entities(jobsSensorEndpoint.getEntities())
-
-    newDevices.append(hub.jobsSensorEndpoint)
-
-    newDevices.append(QueueSizeNumberEntity(
+    hub.sensors.append(QueueSizeNumberEntity(
         hub.jobsSensorEndpoint,
         ['thumbnailGeneration', 'jobCounts' ,'active'],
-        '- Thumbnail Generation Queue',
+        '- Thumbnails',
         '- Active'
     ))
 
-    newDevices.append(QueueSizeNumberEntity(
+    hub.sensors.append(QueueSizeNumberEntity(
         hub.jobsSensorEndpoint,
         ['thumbnailGeneration', 'jobCounts' ,'failed'],
-        '- Thumbnail Generation Queue',
+        '- Thumbnail',
         '- Failed'
     ))
 
-    newDevices.append(QueueSizeNumberEntity(
+    hub.sensors.append(QueueSizeNumberEntity(
         hub.jobsSensorEndpoint,
         ['thumbnailGeneration', 'jobCounts' ,'waiting'],
-        '- Thumbnail Generation Queue',
+        '- Thumbnail',
         '- Waiting'
     ))
 
-    newDevices.append(QueueSizeNumberEntity(
+    hub.sensors.append(QueueSizeNumberEntity(
         hub.jobsSensorEndpoint,
         ['thumbnailGeneration', 'jobCounts' ,'paused'],
-        '- Thumbnail Generation Queue',
+        '- Thumbnail',
         '- Paused'
     ))
 
-    newDevices.append(QueueStatusBoolEntity(
+    hub.sensors.append(QueueStatusBoolEntity(
         hub.jobsSensorEndpoint,
         ['thumbnailGeneration', 'queueStatus', 'isActive'],
-        '- Thumbnail Generation Status',
+        '- Thumbnails',
         '- Active'
     ))
 
-    async_add_entities(newDevices)
+    async_add_entities(hub.sensors)
