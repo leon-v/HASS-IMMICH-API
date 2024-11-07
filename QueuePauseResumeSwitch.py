@@ -23,7 +23,6 @@ class QueuePauseResumeSwitch(SwitchEntity):
         self.path: List[str] = path
         self.groupName: str = groupName
         self.sensorName: str = sensorName
-        self._attr_name: str = f"{endpoint._attr_name} {groupName} {sensorName}"
 
         self.onCommand: RestCommand = onCommand
         self.onCommand.callback = self.commandUpdated
@@ -32,6 +31,7 @@ class QueuePauseResumeSwitch(SwitchEntity):
         self.offCommand.callback = self.commandUpdated
         self.responsePath: List[str] = responsePath
 
+        self._attr_name: str = f"{endpoint._attr_name} {groupName} {sensorName}"
         self._attr_should_poll = False
         self._attr_is_on = False
         self._attr_available = True
@@ -39,37 +39,35 @@ class QueuePauseResumeSwitch(SwitchEntity):
         self.endpoint.registerSensor(self)
 
     async def async_turn_on(self, **kwargs):
-        _LOGGER.debug(f"async_turn_on")
+        _LOGGER.debug(f"Command On")
         self._attr_is_on = True
         await self.onCommand.run()
         self.schedule_update_ha_state()
 
 
     async def async_turn_off(self, **kwargs):
-        _LOGGER.debug(f"async_turn_off")
+        _LOGGER.debug(f"Command Off")
         self._attr_is_on = False
         await self.offCommand.run()
 
 
     async def commandUpdated(self, apiResponse):
-        _LOGGER.debug(f"commandUpdated: {apiResponse}")
         self.updateFromApiResponse(self.responsePath, apiResponse)
+        _LOGGER.debug(f"Command Update: isOn: {self._attr_is_on}, isAvailable: {self._attr_available}")
 
 
     def endpointUpdated(self, apiResponse):
-        _LOGGER.debug(f"endpointUpdated: {apiResponse}")
         self.updateFromApiResponse(self.path, apiResponse)
+        _LOGGER.debug(f"Poll Update: isOn: {self._attr_is_on}, isAvailable: {self._attr_available}")
 
 
     def updateFromApiResponse(self, path: List[str], apiValue):
-        _LOGGER.debug(f"updateFromApiResponse: {path} {apiValue}")
         isOn = self.getApiResponseValue(path, apiValue)
         self.setIsOn(isOn)
 
 
     def setIsOn(self, isOn):
-        _LOGGER.debug(f"setIsOn: {isOn}")
-        self._attr_available = False if isOn == None else True
+        self._attr_available = isOn != None
         self._attr_is_on = isOn
         self.schedule_update_ha_state()
 

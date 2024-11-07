@@ -75,7 +75,7 @@ class RestEndpoint(CoordinatorEntity, SensorEntity):
 
 
     def registerSensor(self, entity) -> None :
-        _LOGGER.debug(f"registerSensor")
+        _LOGGER.debug(f"registerSensor: {entity._attr_name}")
         self.sensors.append(entity)
 
     @property

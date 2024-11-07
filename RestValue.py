@@ -27,12 +27,10 @@ class RestValue():
 
         for key in self.path:
             if key not in workingValue:
-                self._attr_available = False
                 return None
 
             workingValue = workingValue[key]
 
-        self._attr_available = True
         return workingValue
 
 class RestValueSensor(RestValue, SensorEntity):

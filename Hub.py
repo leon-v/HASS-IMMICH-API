@@ -38,6 +38,15 @@ class Hub:
         self.entities:  List[Entity] = []
         self.entitiesCreated = False
 
+    def createEndpoints(self) -> None:
+
+        if self.endpointsCreated:
+            return
+
+        from .Jobs import Jobs
+        self.endpoints.append(Jobs(self))
+
+        self.endpointsCreated = True
 
     async def endpointsFirstRefresh(self):
 
@@ -61,17 +70,6 @@ class Hub:
         self.entitiesCreated = True
 
 
-    def createEndpoints(self) -> None:
-
-        if self.endpointsCreated:
-            return
-
-        from .Jobs import Jobs
-        self.endpoints.append(Jobs(self))
-
-        self.endpointsCreated = True
-
-
     def getSwitches(self) -> List[ToggleEntity]:
 
         self.createEntities()
@@ -82,7 +80,6 @@ class Hub:
             if isinstance(entity, ToggleEntity):
                 switchEntities.append(entity)
 
-        _LOGGER.debug(f"getSwitches {switchEntities}")
         return switchEntities
 
 

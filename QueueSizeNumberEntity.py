@@ -24,4 +24,5 @@ class QueueSizeNumberEntity(NumberEntity, RestValueSensor):
 
     def endpointUpdated(self, apiResponse):
         self._attr_native_value = self.getEndpointValue(apiResponse)
+        self._attr_available = self._attr_native_value != None
         self.async_write_ha_state()
