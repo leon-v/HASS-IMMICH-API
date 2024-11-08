@@ -3,6 +3,36 @@ Curently only has sensors and switches for the Jobs queue.
 I plan of tidying up the arcitecture to support smoother addition of other sensors.
 Then will look at adding more endpoints.
 
+__init__.py
+__pycache__/
+.gitignore
+api/
+    __init__.py
+    ImmichApi.py
+    RestCommand.py
+    RestEndpoint.py
+    RestRequest.py
+    RestValue.py
+    RestValueBinary.py
+components/
+    __init__.py
+    PolledCommandResponseSwitch.py
+    NumberEntity.py
+    BoolEntity.py
+    SelectEntity.py
+jobs/
+    __init__.py
+    Job.py
+    Jobs.py
+Constants.py
+Exceptions.py
+Hub.py
+LICENSE
+manifest.json
+README.md
+sensor.py
+strings.json
+switch.py
 
 ## Installation
 
