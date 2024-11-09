@@ -3,6 +3,9 @@ Curently only has sensors and switches for the Jobs queue.
 I plan of tidying up the arcitecture to support smoother addition of other sensors.
 Then will look at adding more endpoints.
 
+
+Note to self - Hub has config objects - sensors impliment config
+config objects live in huh, sensors live in sensors.py & switches.py
 __init__.py
 __pycache__/
 .gitignore
@@ -53,3 +56,6 @@ Onece Home Assistant has restarted:
  - You will be presented with a success message if the connection test was successful.
 
 From here you can search for the new sensors
+
+## Links
+ - https://github.com/home-assistant/example-custom-config/blob/master/custom_components/detailed_hello_world_push/__init__.py
