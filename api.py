@@ -7,7 +7,6 @@ from aiohttp.client import _RequestOptions
 from homeassistant.core import callback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
 from .hub import Hub
-from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,31 +48,28 @@ class HttpRequest:
                 return await response.json()
 
 class PollingRequest(HttpRequest, CoordinatorEntity):
-    """ Sends a HTTP request at a sefined interval"""
+    """ Sends a HTTP request on an interval"""
     def __init__(self, hub: Hub, route: Route, interval: timedelta, request_options: _RequestOptions):
-        self.request_options: _RequestOptions = request_options
-        super().__init__(hub, route)
 
+        HttpRequest.__init__(self, hub, route)
+
+        self.request_options: _RequestOptions = request_options
         self.coordinator: DataUpdateCoordinator = DataUpdateCoordinator(
             self.hub._hass,
             _LOGGER,
             name = f"{self.route.uri} Coordinator",
-            update_method=self.coordinatorUpdate,
+            update_method=self.coordinator_update,
             update_interval=interval,
         )
 
-        CoordinatorEntity.__init__(self.coordinator)
+        CoordinatorEntity.__init__(self, self.coordinator)
 
     @callback
-    async def coordinatorUpdate(self):
+    async def coordinator_update(self):
         """Performs the HTTP request when coordinator requests an update"""
-        return await self.send()
+        return await self.send(self.request_options)
 
 class CommandRequest(HttpRequest):
+    """ Sends a single HTTP request """
     def __init__(self, hub: Hub, route: Route, body: object):
-        super().__init__(route, body)
-
-
-
-
-# class PollRequest:
+        HttpRequest.__init__(self, hub, route)

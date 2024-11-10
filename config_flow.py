@@ -11,9 +11,8 @@ from homeassistant.core import HomeAssistant
 
 from aiohttp import client_exceptions
 
-from .Constants import DOMAIN  # pylint:disable=unused-import
+from .constants import DOMAIN
 from .Hub import Hub
-from .Exceptions import CannotConnect, InvalidHost
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -53,9 +52,9 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
     # result = await hub.testConnection()
     try:
         result = await hub.api.validateAccessToken()
-    except client_exceptions.ClientResponseError as clientError:
-        # result f"HTTP error occurred: {clientError.status} {clientError.message}"
-        raise CannotConnect(f"HTTP error occurred: {clientError.status} {clientError.message}")
+    except client_exceptions.ClientResponseError as client_error:
+        # result f"HTTP error occurred: {client_error.status} {client_error.message}"
+        raise CannotConnect(f"HTTP error occurred: {client_error.status} {client_error.message}")
 
     if not result:
         # If there is an error, raise an exception to notify HA that there was a
@@ -124,3 +123,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=DATA_SCHEMA, errors=errors
         )
+
+    def is_matching(self, other_flow: config_entries.ConfigFlow) -> bool:
+        """Return True if other_flow is matching this flow."""
+        raise NotImplementedError
+
+class CannotConnect(exceptions.HomeAssistantError):
+    """Error to indicate we cannot connect."""
+
+
+class InvalidHost(exceptions.HomeAssistantError):
+    """Error to indicate there is an invalid hostname."""

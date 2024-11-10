@@ -24,11 +24,10 @@ class Hub:
 
     def __init__(self, hass: HomeAssistant, host: str, api_key: str) -> None:
         """Init dummy hub."""
-        self.api: ImmichApi = ImmichApi(host, api_key)
         self._hass = hass
         self._name = "IMMICH"
-
         self._id = self._name.lower()
+
         self.online = True
 
         from .RestEndpoint import RestEndpoint
