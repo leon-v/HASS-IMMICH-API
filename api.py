@@ -1,75 +1,102 @@
 """API methods for sending HTTP requests."""
 
+from __future__ import annotations
+from typing import Any
 import logging
-from datetime import timedelta
 from aiohttp import ClientSession
 from aiohttp.client import _RequestOptions
-from homeassistant.core import callback
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
-from .hub import Hub
 
 _LOGGER = logging.getLogger(__name__)
 
+class ValuePath:
+    """ Hold the expression to traverse to a JSON response node """
+    def __init__(self, path: list[str]):
+        self.path: list[str] = path
+
 class Route:
     """API route configuration (method and URI path)"""
-    def __init__(self, method: str, uri: str):
+    def __init__(self, method: str, uri: str, value_path: ValuePath = None) -> None:
         self.method: str = method
-        self.uri: str = uri
+        self.uri: str = uri,
+        self.value_path: ValuePath = value_path
 
-class HttpRequest:
-    """Makes HTTP requests"""
-    def __init__(self, hub: Hub, route: Route):
-        self.hub: Hub = hub
-        self.route: Route = route
+    def parse_response(self, response_value: Any) -> Any:
+        """Returns the node value targeted by value_path"""
 
-        self.host: str
-        self.api_key: str
+        if not self.value_path:
+            return response_value
 
-        self.headers = {"x-api-key": self.api_key}
+        for key in self.value_path:
+            if key not in response_value:
+                return None
 
-    async def send(self, request_options: _RequestOptions):
+            response_value = response_value[key]
+
+        return response_value
+
+class ApiClient:
+    """Sends HTTP requests."""
+    def __init__(self, host, headers) -> None:
+        self.host = host
+        self.headers = headers
+
+    async def send(self, route: Route, request_options: _RequestOptions = None) -> Any:
         """Sends the configured HTTP request"""
-        url = self.host + self.route.uri
-        async with ClientSession() as session:
-            _LOGGER.debug(
-                "Request: Method: %s URL: %s kwargs: %s",
-                self.route.method,
-                url,
-                request_options
-            )
-            async with session.request(
-                method=self.route.method,
+        url = self.host + route.uri
+        session: ClientSession = ClientSession()
+
+        _LOGGER.debug(
+            "Request: Method: %s URL: %s request_options: %s",
+            route.method,
+            url,
+            request_options
+        )
+
+        try:
+            response = await session.request(
+                method=route.method,
                 url=url,
                 headers=self.headers,
                 **request_options
+            )
+
+            _LOGGER.debug("Response: %s", response)
+            response.raise_for_status()
+            response_data = await response.json()
+            return route.parse_response(response_data)
+
+        finally:
+            await session.close()
+
+class Api():
+    """Sends HTTP requests and parses the response."""
+
+    def __init__(self, host: str, api_key: str) -> None:
+        """Init hub for IMMICH API"""
+
+        self.host = host
+        self.api_key = api_key
+        self.headers = {"x-api-key": api_key}
+
+    async def send(self, route: Route, request_options: _RequestOptions = None):
+        """Sends the configured HTTP request"""
+        url = self.host + route.uri
+        async with ClientSession() as session:
+
+            _LOGGER.debug(
+                "Request: Method: %s URL: %s kwargs: %s",
+                route.method,
+                url,
+                request_options
+            )
+
+            async with session.request(
+                method = route.method,
+                url = url,
+                headers = self.headers,
+                **request_options
             ) as response:
-                _LOGGER.debug("Response: Status: %s", response.status)
+                _LOGGER.debug("Response: %s", response)
                 response.raise_for_status()
-                return await response.json()
-
-class PollingRequest(HttpRequest, CoordinatorEntity):
-    """ Sends a HTTP request on an interval"""
-    def __init__(self, hub: Hub, route: Route, interval: timedelta, request_options: _RequestOptions):
-
-        HttpRequest.__init__(self, hub, route)
-
-        self.request_options: _RequestOptions = request_options
-        self.coordinator: DataUpdateCoordinator = DataUpdateCoordinator(
-            self.hub._hass,
-            _LOGGER,
-            name = f"{self.route.uri} Coordinator",
-            update_method=self.coordinator_update,
-            update_interval=interval,
-        )
-
-        CoordinatorEntity.__init__(self, self.coordinator)
-
-    @callback
-    async def coordinator_update(self):
-        """Performs the HTTP request when coordinator requests an update"""
-        return await self.send(self.request_options)
-
-class CommandRequest(HttpRequest):
-    """ Sends a single HTTP request """
-    def __init__(self, hub: Hub, route: Route, body: object):
-        HttpRequest.__init__(self, hub, route)
+                response_data = await response.json()
+                return route.parse_response(response_data)

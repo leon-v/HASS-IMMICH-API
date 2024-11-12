@@ -4,7 +4,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import HubConfigEntry
-from .Hub import Hub
+from .hub import Hub
+
 async def async_setup_entry(
     hass: HomeAssistant,
     hub_config_entry: HubConfigEntry,
@@ -17,3 +18,9 @@ async def async_setup_entry(
 
     async_add_entities(hub.getSensors())
 
+
+class SensorConfiguration():
+    """Holds all the configuration required to fully configure a single sensor entity"""
+    def __init__(self, hub: Hub):
+        self.hub: Hub = hub
+        pass
