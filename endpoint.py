@@ -5,9 +5,10 @@ from datetime import timedelta
 from aiohttp.client import _RequestOptions
 from homeassistant.core import callback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
-from .switch import SwitchConfiguration
-from .hub import Hub, Route
-from .api import ValuePath
+
+from .switch_entity import SwitchConfiguration
+from .hub import Hub
+from .api import ValuePath, Route
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -17,16 +18,6 @@ class Request:
         self.hub: Hub = hub
         self.route: Route = route
         self.request_options: _RequestOptions = request_options
-
-    async def api_request(self):
-        """ Send an API request to the configured route """
-        return await self.hub.api_request(self.route, self.request_options)
-
-class Listener:
-    """ Used to rute responses to callbacks  """
-    def __init__(self, coordinator: DataUpdateCoordinator, value_path: ValuePath) -> None:
-        self.coordinator: DataUpdateCoordinator = coordinator
-        self.value_path: ValuePath = value_path
 
 class PollingRequest(CoordinatorEntity, Request):
     """ Sends a HTTP request on an interval"""
@@ -48,7 +39,7 @@ class PollingRequest(CoordinatorEntity, Request):
     @callback
     async def coordinator_update(self):
         """ Performs the HTTP request when coordinator requests an update """
-        return await self.api_request()
+        return await self.hub.api.send(self.route, self.request_options)
 
 
 

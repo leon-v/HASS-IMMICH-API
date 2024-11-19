@@ -7,7 +7,8 @@ import voluptuous as vol
 from homeassistant import config_entries, exceptions
 from homeassistant.core import HomeAssistant
 from aiohttp import client_exceptions
-from .constants import DOMAIN
+
+from .const import DOMAIN
 from .hub import Hub
 
 _LOGGER = logging.getLogger(__name__)
@@ -24,17 +25,20 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
     Data has the keys from DATA_SCHEMA with values provided by the user.
     """
 
-    if len(data["host"]) < 3:
+    host = data["host"]
+
+    if len(host) < 3:
         raise InvalidHost
 
 
-    hub = Hub(hass, data["host"], data['api_key'])
+    hub = Hub(hass, host, data['api_key'])
 
     try:
         result = await hub.validate_access_token()
     except client_exceptions.ClientResponseError as client_error:
-        raise CannotConnect("HTTP error occurred: {client_error.status} {client_error.message}") from client_error
-
+        raise CannotConnect(f"HTTP error occurred: {client_error.status} {client_error.message}") from client_error
+    except client_exceptions.InvalidUrlClientError as client_error:
+        raise CannotConnect(f"Invalid URL: {host}") from client_error
     if not result:
         raise CannotConnect
 
@@ -79,7 +83,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except Exception as excepttion:  # pylint: disable=broad-except
                 message = str(excepttion)
                 message = message if message else "Unknown error"
-                _LOGGER.exception(f"Unexpected exception: %s", message)
+                _LOGGER.exception("Unexpected exception: %s", message)
                 errors["base"] = message
 
         return self.async_show_form(

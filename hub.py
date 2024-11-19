@@ -3,8 +3,8 @@
 from __future__ import annotations
 import logging
 from homeassistant.core import HomeAssistant
-from .endpoint import Endpoint
-from.api import ApiClient, Route
+from homeassistant.config_entries import ConfigEntry
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,8 +18,10 @@ class Hub:
 
         self.hass: HomeAssistant = hass
 
+        from .api import ApiClient
         self.api: ApiClient = ApiClient(host, api_key)
 
+        from .endpoint import Endpoint
         self.endpoints = list[Endpoint]
 
         self._name: str = "IMMICH 1"
@@ -34,4 +36,5 @@ class Hub:
 
     async def validate_access_token(self) -> bool:
         """Validates that the API is making requests and authenticating"""
-        return await self.api.send(Route("POST", "/api/auth/validateToken", ['authStatus']))
+        from .api import Route
+        return await self.api.send(Route('POST', '/api/auth/validateToken', ['authStatus']))

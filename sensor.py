@@ -3,8 +3,8 @@
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import HubConfigEntry
 from .hub import Hub
+from . import HubConfigEntry
 
 async def async_setup_entry(
     hass: HomeAssistant,
