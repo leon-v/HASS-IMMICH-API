@@ -3,7 +3,6 @@
 from __future__ import annotations
 import logging
 from homeassistant.core import HomeAssistant
-from homeassistant.config_entries import ConfigEntry
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -22,10 +21,13 @@ class Hub:
         self.api: ApiClient = ApiClient(host, api_key)
 
         from .endpoint import Endpoint
-        self.endpoints = list[Endpoint]
+        self.endpoints: list[Endpoint] = []
 
         self._name: str = "IMMICH 1"
         self._id: str = self._name.lower()
+
+        from .endpoint_jobs import Jobs
+        self.endpoints.append(Jobs(self))
 
         self.online = True
 

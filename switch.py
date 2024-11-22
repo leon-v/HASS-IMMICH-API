@@ -25,9 +25,18 @@ async def async_setup_entry(
     # Loop though switch config intances while creating the entities
 
     switches: list[Switch] = []
+
     endpoint: Endpoint
+
+    _LOGGER.debug(
+        "hub.endpoints %s",
+        hub.endpoints
+    )
+
     for endpoint in hub.endpoints:
-        for switch_configuration in endpoint.get_switch_configurations():
-            switches.append(Switch(switch_configuration))
+
+        for switch_configuration in endpoint.switch_configurations:
+            switch = Switch(switch_configuration)
+            switches.append(switch)
 
     async_add_entities(switches)

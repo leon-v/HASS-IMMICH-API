@@ -43,29 +43,26 @@ class ApiClient:
         self.headers = {"x-api-key": api_key}
 
 
-    async def send(self, route: Route, request_options: _RequestOptions = None) -> Any:
+    async def send(self, route: Route, **request_arguments) -> Any:
         """Sends the configured HTTP request"""
 
         url = self.host + route.uri
 
-        if request_options is None:
-            request_options = {}
-
         session: ClientSession = ClientSession()
 
         _LOGGER.debug(
-            "Request: Method: %s URL: %s request_options: %s",
+            "Request: Method: %s URL: %s request_arguments: %s",
             route.method,
             url,
-            request_options
+            request_arguments
         )
 
         try:
             response = await session.request(
-                method=route.method,
-                url=url,
-                headers=self.headers,
-                **request_options
+                method = route.method,
+                url = url,
+                headers = self.headers,
+                **request_arguments
             )
 
             _LOGGER.debug("Response: %s", response)
