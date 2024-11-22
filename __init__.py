@@ -9,7 +9,7 @@ type HubConfigEntry = ConfigEntry[Hub]
 
 # List of platforms to support. There should be a matching .py file for each,
 # eg <cover.py> and <sensor.py>
-PLATFORMS = [Platform.SWITCH]
+PLATFORMS = [Platform.SWITCH, Platform.SENSOR]
 
 async def async_setup_entry(hass: HomeAssistant, hub_config_entry: HubConfigEntry) -> bool:
     """Set up from a config entry."""

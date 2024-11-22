@@ -18,7 +18,7 @@ class Hub:
         self.hass: HomeAssistant = hass
 
         from .api import ApiClient
-        self.api: ApiClient = ApiClient(host, api_key)
+        self.api_client: ApiClient = ApiClient(host, api_key)
 
         from .endpoint import Endpoint
         self.endpoints: list[Endpoint] = []
@@ -27,7 +27,7 @@ class Hub:
         self._id: str = self._name.lower()
 
         from .endpoint_jobs import Jobs
-        self.endpoints.append(Jobs(self))
+        self.endpoints.append(Jobs(self.hass, self.api_client))
 
         self.online = True
 
@@ -39,4 +39,4 @@ class Hub:
     async def validate_access_token(self) -> bool:
         """Validates that the API is making requests and authenticating"""
         from .api import Route
-        return await self.api.send(Route('POST', '/api/auth/validateToken', ['authStatus']))
+        return await self.api_client.send(Route('POST', '/api/auth/validateToken', ['authStatus']))

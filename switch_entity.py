@@ -8,7 +8,7 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 # from .hub import Hub
-from .api import ApiClient, ValuePath, Route, Listener
+from .api import ApiClient, Route, Listener
 
 _LOGGER = logging.getLogger(__name__)
 

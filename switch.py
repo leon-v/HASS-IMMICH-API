@@ -8,7 +8,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .hub import Hub
 from . import HubConfigEntry
-from .switch_entity import Switch
+from homeassistant.components.switch import SwitchEntity
 
 from .endpoint import Endpoint
 
@@ -22,21 +22,15 @@ async def async_setup_entry(
     """Add  sensors for passed hub_config_entry in HA."""
     hub: Hub = hub_config_entry.runtime_data
 
-    # Loop though switch config intances while creating the entities
-
-    switches: list[Switch] = []
-
-    endpoint: Endpoint
-
     _LOGGER.debug(
         "hub.endpoints %s",
         hub.endpoints
     )
 
-    for endpoint in hub.endpoints:
+    endpoint: Endpoint
+    switches: list[SwitchEntity] = []
 
-        for switch_configuration in endpoint.switch_configurations:
-            switch = Switch(switch_configuration)
-            switches.append(switch)
+    for endpoint in hub.endpoints:
+        switches.extend(endpoint.get_switches())
 
     async_add_entities(switches)

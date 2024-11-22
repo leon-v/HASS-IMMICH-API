@@ -65,7 +65,7 @@ class ApiClient:
                 **request_arguments
             )
 
-            _LOGGER.debug("Response: %s", response)
+            _LOGGER.debug("Response: %s", await response.text())
             response.raise_for_status()
             response_data = await response.json()
             return route.parse_response(response_data)
