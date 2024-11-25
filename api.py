@@ -13,6 +13,15 @@ class ValuePath:
     def __init__(self, path: list[str]):
         self.path: list[str] = path
 
+    def __iter__(self):
+        return iter(self.path)
+
+    def __getitem__(self, index):
+        return self.path[index]
+
+    def __len__(self):
+        return len(self.path)
+
 class Route:
     """API route configuration (method and URI path)"""
     def __init__(self, method: str, uri: str, value_path: ValuePath = None) -> None:
