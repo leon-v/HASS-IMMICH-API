@@ -42,15 +42,16 @@ class Switch(SwitchEntity, CoordinatorEntity):
         command: SwitchCommand,
         listener: Listener,
         invert: bool = False
+        #description: SwitchEntityDescription = None
     ):
 
         self.command: SwitchCommand = command
         self.listener: Listener = listener
-        self.invert: bool = invert
+        self._invert: bool = invert
 
         self._attr_name = name
         self._attr_unique_id = self._attr_name.lower().replace(" ", "_")
-        # entity_description
+        #self.entity_description = description
         # _attr_device_class
         # _attr_state
 
@@ -58,34 +59,42 @@ class Switch(SwitchEntity, CoordinatorEntity):
 
         CoordinatorEntity.__init__(self, self.listener.coordinator)
 
+    def invert(self, value: bool):
+        """ Inverts the value if configured to do so """
+        return (not value) if self._invert else value
+
     async def async_turn_on(self, **kwargs):
         """ Turns the switch on """
-        _LOGGER.info("Command On")
-        self._attr_is_on = not self.invert
-        # self.schedule_update_ha_state()
-        self._attr_is_on = await self.command.set_position(self._attr_is_on)
-        self.schedule_update_ha_state()
+        await self.async_set_position(True, **kwargs)
 
     async def async_turn_off(self, **kwargs):
         """ Turns the switch off """
-        _LOGGER.info("Command Off")
-        self._attr_is_on = self.invert
-        # self.schedule_update_ha_state()
-        self._attr_is_on = await self.command.set_position(self._attr_is_on)
+        await self.async_set_position(False, **kwargs)
+
+    async def async_set_position(self, position: bool, **kwargs):
+        """ Turns the switch on or off """
+
+        self._attr_is_on = position
         self.schedule_update_ha_state()
+        _LOGGER.info("Command Set: %s", self._attr_is_on)
+
+        position = self.invert(self._attr_is_on)
+        position = await self.command.set_position(position)
+        self._attr_is_on = self.invert(position)
+        self.schedule_update_ha_state()
+        _LOGGER.info("Command Got: %s", self._attr_is_on)
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        is_on = self.listener.parse_response(self.coordinator.data)
-        is_on = (not is_on) if self.invert else (is_on)
-        _LOGGER.debug("Coordinator Update: %s", self._attr_is_on)
+        position = self.listener.parse_response(self.coordinator.data)
+        position = self.invert(position)
+        _LOGGER.debug("Coordinator Update: %s", position)
 
-        if (is_on != self._attr_is_on):
-            self._attr_is_on = is_on
+        if (position != self._attr_is_on):
+            self._attr_is_on = position
             _LOGGER.info("Coordinator Update Change: %s", self._attr_is_on)
-
-        self.schedule_update_ha_state()
+            self.schedule_update_ha_state()
 
         super()._handle_coordinator_update()
 
