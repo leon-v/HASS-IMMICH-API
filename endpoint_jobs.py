@@ -23,7 +23,7 @@ class Jobs(Endpoint):
         self.polling_request: PollingRequest = PollingRequest(
             self.hass,
             self.api_client,
-            f"{self.name_prefix} Jobs",
+            f"{self.name_prefix} Jobs REST Endpoint",
             Route('GET', '/api/jobs'),
             timedelta(seconds = 5)
         )
@@ -31,7 +31,7 @@ class Jobs(Endpoint):
         self.add_sensor(self.polling_request)
 
         switch_configuration = SwitchConfiguration(
-            f"{self.name_prefix} Jobs Thumbnials",
+            f"{self.name_prefix} Jobs Thumbnials Queue Enabled",
             SwitchCommand(
                 self.api_client,
                 Route("PUT", "/api/jobs/thumbnailGeneration", ValuePath(['queueStatus', 'isPaused'])),
@@ -41,7 +41,8 @@ class Jobs(Endpoint):
             Listener(
                 self.polling_request.coordinator,
                 ValuePath(['thumbnailGeneration', 'queueStatus', 'isPaused'])
-            )
+            ),
+            invert = True
         )
 
         self.add_switch_configutaion(switch_configuration)

@@ -4,6 +4,7 @@ import logging
 from typing import Any
 from dataclasses import dataclass
 
+from homeassistant.core import callback
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -39,11 +40,13 @@ class SwitchConfiguration():
         self,
         name: str,
         command: SwitchCommand,
-        listener: Listener
+        listener: Listener,
+        invert: bool = False
     ) -> None:
         self.name: str = name
         self.command: SwitchCommand = command
         self.listener: Listener = listener
+        self.invert: bool = invert
 
 
 class Switch(SwitchEntity, CoordinatorEntity):
@@ -54,23 +57,42 @@ class Switch(SwitchEntity, CoordinatorEntity):
 
         self._attr_name = self.configuration.name
         self._attr_unique_id = self._attr_name.lower().replace(" ", "_")
+        # entity_description
+        # _attr_device_class
+        # _attr_state
+        self.invert: bool = self.configuration.invert
 
         SwitchEntity.__init__(self)
+
         CoordinatorEntity.__init__(self, self.configuration.listener.coordinator)
 
     async def async_turn_on(self, **kwargs):
         """ Turns the switch on """
-        _LOGGER.debug("Command On")
-        self._attr_is_on = True
-        await self.configuration.command.set_position(self._attr_is_on)
+        _LOGGER.info("Command On")
+        self._attr_is_on = not self.invert
+        self.schedule_update_ha_state()
+        self._attr_is_on = await self.configuration.command.set_position(self._attr_is_on)
         self.schedule_update_ha_state()
 
     async def async_turn_off(self, **kwargs):
         """ Turns the switch off """
-        _LOGGER.debug("Command Off")
-        self._attr_is_on = False
-        await self.configuration.command.set_position(self._attr_is_on)
+        _LOGGER.info("Command Off")
+        self._attr_is_on = self.invert
         self.schedule_update_ha_state()
+        self._attr_is_on = await self.configuration.command.set_position(self._attr_is_on)
+        self.schedule_update_ha_state()
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        is_on = self.configuration.listener.parse_response(self.coordinator.data)
+        _LOGGER.debug("Coordinator Update: %s", self._attr_is_on)
+
+        if (is_on != self._attr_is_on):
+            self._attr_is_on = not is_on if self.invert else is_on
+            _LOGGER.info("Coordinator Update Change: %s", self._attr_is_on)
+            self.schedule_update_ha_state()
+
 
     def turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""

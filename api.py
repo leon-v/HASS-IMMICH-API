@@ -119,3 +119,17 @@ class Listener:
     def __init__(self, coordinator: DataUpdateCoordinator, value_path: ValuePath) -> None:
         self.coordinator: DataUpdateCoordinator = coordinator
         self.value_path: ValuePath = value_path
+
+    def parse_response(self, response_value: Any) -> Any:
+        """Returns the node value targeted by value_path"""
+
+        if not self.value_path:
+            return response_value
+
+        for key in self.value_path:
+            if key not in response_value:
+                return None
+
+            response_value = response_value[key]
+
+        return response_value
