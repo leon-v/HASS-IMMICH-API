@@ -25,6 +25,7 @@ class Request:
         self.request_arguments = request_arguments
 
     async def send(self):
+        """ Sends this request """
         return await self.api_client.send(self.route, **self.request_arguments)
 
 
@@ -34,16 +35,18 @@ class PollingRequest(CoordinatorEntity, Request):
             self,
             hass: HomeAssistant,
             api_client: ApiClient,
+            name: str,
             route: Route,
             interval: timedelta,
             **request_arguments
     ) -> None:
-
         self.hass: HomeAssistant = hass
 
-        Request.__init__(self, api_client, route, **request_arguments)
+        self._attr_name = name
+        self._attr_unique_id = self._attr_name.lower().replace(" ", "_")
+        self._attr_icon = "mdi:api"
 
-        # TODO give this entity a name
+        Request.__init__(self, api_client, route, **request_arguments)
 
         self.coordinator: DataUpdateCoordinator = DataUpdateCoordinator(
             self.hass,
@@ -58,7 +61,11 @@ class PollingRequest(CoordinatorEntity, Request):
     @callback
     async def coordinator_update(self):
         """ Performs the HTTP request when coordinator requests an update """
-        return await self.send()
+
+        result = await self.send()
+        self._attr_state = 'OK'
+        self._attr_extra_state_attributes = result
+        return result
 
 
 

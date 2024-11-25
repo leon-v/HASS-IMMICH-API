@@ -4,7 +4,6 @@ from __future__ import annotations
 from typing import Any
 import logging
 from aiohttp import ClientSession
-from aiohttp.client import _RequestOptions
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)

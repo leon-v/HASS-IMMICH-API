@@ -51,7 +51,9 @@ class Switch(SwitchEntity, CoordinatorEntity):
     def __init__(self, configuration: SwitchConfiguration):
 
         self.configuration: SwitchConfiguration = configuration
-        self._name: str = self.configuration.name
+
+        self._attr_name = self.configuration.name
+        self._attr_unique_id = self._attr_name.lower().replace(" ", "_")
 
         SwitchEntity.__init__(self)
         CoordinatorEntity.__init__(self, self.configuration.listener.coordinator)

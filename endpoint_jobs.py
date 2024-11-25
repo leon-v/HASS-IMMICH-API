@@ -13,14 +13,17 @@ class Jobs(Endpoint):
     def __init__(
             self,
             hass: HomeAssistant,
-            api_client: ApiClient
+            api_client: ApiClient,
+            name_prefix: str,
     ) -> None:
+        self.name_prefix: str = name_prefix
 
         super().__init__(hass, api_client)
 
         self.polling_request: PollingRequest = PollingRequest(
             self.hass,
             self.api_client,
+            f"{self.name_prefix} Jobs",
             Route('GET', '/api/jobs'),
             timedelta(seconds = 5)
         )
@@ -28,7 +31,7 @@ class Jobs(Endpoint):
         self.add_sensor(self.polling_request)
 
         switch_configuration = SwitchConfiguration(
-            'Thumbnials',
+            f"{self.name_prefix} Jobs Thumbnials",
             SwitchCommand(
                 self.api_client,
                 Route("PUT", "/api/jobs/thumbnailGeneration", ValuePath(['queueStatus', 'isPaused'])),

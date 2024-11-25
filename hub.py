@@ -23,11 +23,11 @@ class Hub:
         from .endpoint import Endpoint
         self.endpoints: list[Endpoint] = []
 
-        self._name: str = "IMMICH 1"
+        self._name: str = "IMMICH 1" # TODO - Change to name of config entry
         self._id: str = self._name.lower()
 
         from .endpoint_jobs import Jobs
-        self.endpoints.append(Jobs(self.hass, self.api_client))
+        self.endpoints.append(Jobs(self.hass, self.api_client, self._name))
 
         self.online = True
 
