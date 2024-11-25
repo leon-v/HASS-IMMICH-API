@@ -9,8 +9,6 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.switch import SwitchEntity
 
 
-
-from .switch_entity import SwitchConfiguration, Switch
 from .api import ApiClient
 # from .hub import Hub
 from .api import Route
@@ -80,18 +78,8 @@ class Endpoint:
         self.hass: HomeAssistant = hass
         self.api_client: ApiClient = api_client
 
-
         self.switches: list[SwitchEntity] = []
-        self.switches_initialised = False
-        self.switch_configurations: list[SwitchConfiguration] = []
-
         self.sensors: list[SensorEntity] = []
-        self.sensors_initialised = False
-        self.sensor_configurations: list[SwitchConfiguration] = []
-
-    def add_switch_configutaion(self, switch_configuration: SwitchConfiguration):
-        """ Adds a switch configuration to the queue """
-        self.switch_configurations.append(switch_configuration)
 
     def add_switch(self, switch: SwitchEntity) -> None:
         """ Adds a configured switch """
@@ -99,20 +87,7 @@ class Endpoint:
 
     def get_switches(self) -> list[SwitchEntity]:
         """ Creates or gets switches """
-
-        if self.switches_initialised:
-            return self.switches
-
-        for switch_configuration in self.switch_configurations:
-            self.add_switch(Switch(switch_configuration))
-
-        self.switches_initialised = True
-
         return self.switches
-
-    def add_sensor_configutaion(self, sensor_configuration):
-        """ Adds a sensor configuration to the queue """
-        self.sensor_configurations.append(sensor_configuration)
 
     def add_sensor(self, sensor: SensorEntity) -> None:
         """ Adds a configured sensor """
@@ -120,14 +95,5 @@ class Endpoint:
 
     def get_sensors(self) -> list[SensorEntity]:
         """ Creates or gets sensors """
-
-        if self.sensors_initialised:
-            return self.sensors
-
-        # for sensor_configuration in self.sensor_configurations:
-            # self.add_sensor(sensor(sensor_configuration))
-
-        self.sensors_initialised = True
-
         return self.sensors
 

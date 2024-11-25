@@ -6,7 +6,7 @@ from homeassistant.core import HomeAssistant
 
 from .api import ApiClient, Route, ValuePath, Listener
 from .endpoint import Endpoint, PollingRequest
-from .switch_entity import SwitchConfiguration, SwitchCommand
+from .switch_entity import Switch, SwitchCommand
 
 class Jobs(Endpoint):
     """Jobs IMMICH API endpoint"""
@@ -30,7 +30,7 @@ class Jobs(Endpoint):
 
         self.add_sensor(self.polling_request)
 
-        switch_configuration = SwitchConfiguration(
+        switch = Switch(
             f"{self.name_prefix} Jobs Thumbnials Queue Enabled",
             SwitchCommand(
                 self.api_client,
@@ -45,5 +45,5 @@ class Jobs(Endpoint):
             invert = True
         )
 
-        self.add_switch_configutaion(switch_configuration)
+        self.add_switch(switch)
 
