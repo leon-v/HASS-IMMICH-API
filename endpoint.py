@@ -65,8 +65,6 @@ class PollingRequest(CoordinatorEntity, Request):
         self._attr_extra_state_attributes = result
         return result
 
-
-
 # May not need depednign on how jobs goes
 class Endpoint:
     """ Base class for all endpoints """

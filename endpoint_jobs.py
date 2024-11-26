@@ -6,7 +6,7 @@ from homeassistant.core import HomeAssistant
 
 from .api import ApiClient, Route, ValuePath, Listener
 from .endpoint import Endpoint, PollingRequest
-from .switch_entity import Switch, SwitchCommand
+from .switch import Switch, SwitchCommand
 
 class Jobs(Endpoint):
     """Jobs IMMICH API endpoint"""
@@ -39,8 +39,9 @@ class Jobs(Endpoint):
                 {"command": "resume", "force": False}
             ),
             Listener(
-                self.polling_request.coordinator,
-                ValuePath(['thumbnailGeneration', 'queueStatus', 'isPaused'])
+                coordinator = self.polling_request.coordinator,
+                value_path = ValuePath(['thumbnailGeneration', 'queueStatus', 'isPaused']),
+                attribute_path = ValuePath(['thumbnailGeneration', 'queueStatus'])
             ),
             invert = True
         )

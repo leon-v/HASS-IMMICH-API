@@ -81,46 +81,28 @@ class ApiClient:
         finally:
             await session.close()
 
-# class Api():
-#     """Sends HTTP requests and parses the response."""
-
-#     def __init__(self, host: str, api_key: str) -> None:
-#         """Init hub for IMMICH API"""
-
-#         self.host: str = host
-#         self.api_key: str = api_key
-#         self.headers = {"x-api-key": api_key}
-
-#     async def send(self, route: Route, request_options: _RequestOptions = None):
-#         """Sends the configured HTTP request"""
-#         url = f"{self.host}{route.uri}"
-#         async with ClientSession() as session:
-
-#             _LOGGER.debug(
-#                 "Request: Method: %s URL: %s kwargs: %s",
-#                 route.method,
-#                 url,
-#                 request_options
-#             )
-
-#             async with session.request(
-#                 method = route.method,
-#                 url = url,
-#                 headers = self.headers,
-#                 **request_options
-#             ) as response:
-#                 _LOGGER.debug("Response: %s", response)
-#                 response.raise_for_status()
-#                 response_data = await response.json()
-#                 return route.parse_response(response_data)
-
 class Listener:
     """ Used to rute responses to callbacks  """
-    def __init__(self, coordinator: DataUpdateCoordinator, value_path: ValuePath) -> None:
+    def __init__(self, coordinator: DataUpdateCoordinator, value_path: ValuePath, attribute_path: ValuePath) -> None:
         self.coordinator: DataUpdateCoordinator = coordinator
         self.value_path: ValuePath = value_path
+        self.attribute_path: ValuePath = attribute_path
 
-    def parse_response(self, response_value: Any) -> Any:
+    def parse_response_attribute(self, response_value: Any) -> Any:
+        """Returns the node value targeted by value_path"""
+
+        if not self.attribute_path:
+            return None
+
+        for key in self.attribute_path:
+            if key not in response_value:
+                return None
+
+            response_value = response_value[key]
+
+        return response_value
+
+    def parse_response_value(self, response_value: Any) -> Any:
         """Returns the node value targeted by value_path"""
 
         if not self.value_path:

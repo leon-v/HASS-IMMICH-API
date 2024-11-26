@@ -36,9 +36,11 @@ async def async_setup_entry(
 
     async_add_entities(sensors)
 
+# class QueueStatus(TextEntity):
+#     # Implement one of these methods.
 
-class SensorConfiguration():
-    """Holds all the configuration required to fully configure a single sensor entity"""
-    def __init__(self, hub: Hub):
-        self.hub: Hub = hub
-        pass
+#     def set_value(self, value: str) -> None:
+#         """Set the text value."""
+
+#     async def async_set_value(self, value: str) -> None:
+#         """Set the text value."""
