@@ -82,24 +82,24 @@ class Switch(SwitchEntity, CoordinatorEntity):
 
         self._attr_is_on = position
         self.schedule_update_ha_state()
-        _LOGGER.info("Command Set: %s", self._attr_is_on)
+        _LOGGER.info("[%s]Command Set: %s", self._attr_unique_id, self._attr_is_on)
 
         position = self.invert(self._attr_is_on)
         position = await self.command.set_position(position)
         self._attr_is_on = self.invert(position)
         self.schedule_update_ha_state()
-        _LOGGER.info("Command Got: %s", self._attr_is_on)
+        _LOGGER.info("[%s]Command Got: %s", self._attr_unique_id, self._attr_is_on)
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         position = self.listener.parse_response_value(self.coordinator.data)
         position = self.invert(position)
-        _LOGGER.debug("Coordinator Update: %s", position)
+        _LOGGER.debug("[%s]Coordinator Update: %s", self._attr_unique_id, position)
 
         if (position != self._attr_is_on):
             self._attr_is_on = position
-            _LOGGER.info("Coordinator Update Change: %s", self._attr_is_on)
+            _LOGGER.info("[%s]Coordinator Update Change: %s", self._attr_unique_id, self._attr_is_on)
             self.schedule_update_ha_state()
 
         if (self.listener.attribute_path):

@@ -79,17 +79,19 @@ class Endpoint:
         self.switches: list[SwitchEntity] = []
         self.sensors: list[SensorEntity] = []
 
-    def add_switch(self, switch: SwitchEntity) -> None:
+    def add_switch(self, switch: SwitchEntity) -> SwitchEntity:
         """ Adds a configured switch """
         self.switches.append(switch)
+        return switch
 
     def get_switches(self) -> list[SwitchEntity]:
         """ Creates or gets switches """
         return self.switches
 
-    def add_sensor(self, sensor: SensorEntity) -> None:
+    def add_sensor(self, sensor: SensorEntity) -> SensorEntity:
         """ Adds a configured sensor """
         self.sensors.append(sensor)
+        return sensor
 
     def get_sensors(self) -> list[SensorEntity]:
         """ Creates or gets sensors """

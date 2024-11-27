@@ -81,12 +81,19 @@ class ApiClient:
         finally:
             await session.close()
 
+# Should Listener extend CoordinatorEntity ?
+# It required the Coordinator already...
 class Listener:
     """ Used to rute responses to callbacks  """
-    def __init__(self, coordinator: DataUpdateCoordinator, value_path: ValuePath, attribute_path: ValuePath) -> None:
+    def __init__(
+        self,
+        coordinator: DataUpdateCoordinator,
+        value_path: ValuePath,
+        attribute_path: ValuePath | None = None
+    ) -> None:
         self.coordinator: DataUpdateCoordinator = coordinator
         self.value_path: ValuePath = value_path
-        self.attribute_path: ValuePath = attribute_path
+        self.attribute_path: ValuePath | None = attribute_path
 
     def parse_response_attribute(self, response_value: Any) -> Any:
         """Returns the node value targeted by value_path"""
