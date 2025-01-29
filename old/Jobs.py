@@ -76,14 +76,14 @@ class Jobs(RestEndpoint):
             '- Active'
         ))
 
-        metadataExtractionCommandRequest = RestRequest(hub = self.hub, method = "PUT", uriPath = f"/api/jobs/{property}")
+        restRequest = RestRequest(hub = self.hub, method = "PUT", uriPath = f"/api/jobs/{property}")
         entities.append(QueuePauseResumeSwitch(
             self,
             [property, 'queueStatus', 'isPaused'],
             f"- {name}",
             '- Paused',
-            onCommand = RestCommand(metadataExtractionCommandRequest, {"command": "pause", "force": False}),
-            offCommand = RestCommand(metadataExtractionCommandRequest, {"command": "resume", "force": False}),
+            onCommand = RestCommand(restRequest, {"command": "pause", "force": False}),
+            offCommand = RestCommand(restRequest, {"command": "resume", "force": False}),
             responsePath = ['queueStatus', 'isPaused'],
         ))
 

@@ -4,6 +4,39 @@ I plan of tidying up the arcitecture to support smoother addition of other senso
 Then will look at adding more endpoints.
 
 
+Note to self - Hub has config objects - sensors impliment config
+config objects live in huh, sensors live in sensors.py & switches.py
+__init__.py
+__pycache__/
+.gitignore
+api/
+    __init__.py
+    ImmichApi.py
+    RestCommand.py
+    RestEndpoint.py
+    RestRequest.py
+    RestValue.py
+    RestValueBinary.py
+components/
+    __init__.py
+    PolledCommandResponseSwitch.py
+    NumberEntity.py
+    BoolEntity.py
+    SelectEntity.py
+jobs/
+    __init__.py
+    Job.py
+    Jobs.py
+Constants.py
+Exceptions.py
+Hub.py
+LICENSE
+manifest.json
+README.md
+sensor.py
+strings.json
+switch.py
+
 ## Installation
 
 Using the SSH addon run these commands:
@@ -23,3 +56,6 @@ Onece Home Assistant has restarted:
  - You will be presented with a success message if the connection test was successful.
 
 From here you can search for the new sensors
+
+## Links
+ - https://github.com/home-assistant/example-custom-config/blob/master/custom_components/detailed_hello_world_push/__init__.py

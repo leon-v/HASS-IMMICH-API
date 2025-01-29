@@ -4,27 +4,37 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.const import Platform
 
-from .Hub import Hub
+from .hub import Hub
+type HubConfigEntry = ConfigEntry[Hub]
+from .logging import setup_logging
 
 # List of platforms to support. There should be a matching .py file for each,
 # eg <cover.py> and <sensor.py>
-PLATFORMS = [Platform.SENSOR, Platform.SWITCH]
+PLATFORMS = [Platform.SWITCH, Platform.SENSOR]
 
-type HubConfigEntry = ConfigEntry[Hub]
-
-async def async_setup_entry(hass: HomeAssistant, entry: HubConfigEntry) -> bool:
-    """Set up from a config entry."""
-
-    entry.runtime_data = Hub(
-        hass,
-        entry.data["host"],
-        entry.data["api_key"]
-    )
-
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+def setup(hass: HomeAssistant, config: dict) -> bool:
+    """Set up component."""
+    setup_logging()
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, hub_config_entry: HubConfigEntry) -> bool:
+    """Set up from a config entry."""
+
+    hub = Hub(
+        hass,
+        hub_config_entry.data["host"],
+        hub_config_entry.data["api_key"]
+    )
+
+    await hub.setup()
+
+    hub_config_entry.runtime_data = hub
+
+    await hass.config_entries.async_forward_entry_setups(hub_config_entry, PLATFORMS)
+    return True
+
+
+async def async_unload_entry(hass: HomeAssistant, hub_config_entry: HubConfigEntry) -> bool:
     """Unload config entry."""
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    return await hass.config_entries.async_unload_platforms(hub_config_entry, PLATFORMS)
