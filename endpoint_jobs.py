@@ -1,5 +1,8 @@
 """Jobs API endpoint"""
 
+import logging
+import re
+
 from datetime import timedelta
 
 from homeassistant.core import HomeAssistant
@@ -11,6 +14,8 @@ from .endpoint import Endpoint, PollingRequest
 from .switch import Switch, SwitchCommand
 from .sensor import QueueStatus
 
+_LOGGER = logging.getLogger(__name__)
+
 class Jobs(Endpoint):
     """Jobs IMMICH API endpoint"""
     def __init__(
@@ -20,8 +25,13 @@ class Jobs(Endpoint):
             name_prefix: str,
     ) -> None:
         self.name_prefix: str = name_prefix
+        self.coordinator: DataUpdateCoordinator
 
         super().__init__(hass, api_client)
+
+    async def setup(self):
+
+        jobs = await self.api_client.send(Route('GET', '/api/jobs'))
 
         polling_request: PollingRequest = self.add_sensor(PollingRequest(
             self.hass,
@@ -33,30 +43,34 @@ class Jobs(Endpoint):
 
         self.coordinator: DataUpdateCoordinator = polling_request.coordinator
 
-        self.add_sensor(QueueStatus(
-            'Jobs Thumbnials Queue',
-            Listener(
-                coordinator = self.coordinator,
-                value_path = ValuePath(['thumbnailGeneration', 'jobCounts']),
-                attribute_path = ValuePath(['thumbnailGeneration', 'jobCounts']),
-            )
-        ))
+        # Loop through jobs, get key and valiue
+        for key, value in jobs.items():
 
-        self.add_switch(
-            Switch(
-                f"{self.name_prefix} Jobs Thumbnials Queue Enabled",
-                SwitchCommand(
-                    self.api_client,
-                    Route("PUT", "/api/jobs/thumbnailGeneration", ValuePath(['queueStatus', 'isPaused'])),
-                    {"command": "pause", "force": False},
-                    {"command": "resume", "force": False}
-                ),
+            name = re.sub(r'([a-z])([A-Z])', r'\1 \2', key).title()
+
+            self.add_sensor(QueueStatus(
+                f"{name} Queue",
                 Listener(
                     coordinator = self.coordinator,
-                    value_path = ValuePath(['thumbnailGeneration', 'queueStatus', 'isPaused']),
-                    attribute_path = ValuePath(['thumbnailGeneration', 'queueStatus'])
-                ),
-                invert = True
-            )
-        )
+                    value_path = ValuePath([key, 'jobCounts']),
+                    attribute_path = ValuePath([key, 'jobCounts']),
+                )
+            ))
 
+            self.add_switch(
+                Switch(
+                    f"{name} Queue Enable",
+                    SwitchCommand(
+                        self.api_client,
+                        Route("PUT", f"/api/jobs/{key}", ValuePath(['queueStatus', 'isPaused'])),
+                        {"command": "pause", "force": False},
+                        {"command": "resume", "force": False}
+                    ),
+                    Listener(
+                        coordinator = self.coordinator,
+                        value_path = ValuePath([key, 'queueStatus', 'isPaused']),
+                        attribute_path = ValuePath([key, 'queueStatus'])
+                    ),
+                    invert = True
+                )
+            )

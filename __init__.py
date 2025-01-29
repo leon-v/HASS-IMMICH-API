@@ -21,11 +21,15 @@ def setup(hass: HomeAssistant, config: dict) -> bool:
 async def async_setup_entry(hass: HomeAssistant, hub_config_entry: HubConfigEntry) -> bool:
     """Set up from a config entry."""
 
-    hub_config_entry.runtime_data = Hub(
+    hub = Hub(
         hass,
         hub_config_entry.data["host"],
         hub_config_entry.data["api_key"]
     )
+
+    await hub.setup()
+
+    hub_config_entry.runtime_data = hub
 
     await hass.config_entries.async_forward_entry_setups(hub_config_entry, PLATFORMS)
     return True
